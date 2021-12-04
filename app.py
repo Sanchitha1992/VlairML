@@ -50,14 +50,14 @@ def test():  # put application's code here
         shutil.rmtree("Test")
     for d in data:
         os.makedirs("Test/"+d["label"], exist_ok=True)
-        count=count+1
-        with open("Test/"+d["label"]+"/image"+str(count)+".png", "wb") as fh:
+        with open("Test/"+d["label"]+"/"+d["name"]+".png", "wb") as fh:
             print(bytes(d["data"].split(',')[1],'utf-8'))
             fh.write(base64.decodebytes(bytes(d["data"].split(',')[1],'utf-8')))
     SIZE = 256  # Resize images
     test_images = []
 
     test_labels = []
+    test_image_names=[]
     for directory_path in glob.glob("Test/*"):
         label = directory_path.split("/")[-1]
         print(label)
@@ -67,6 +67,7 @@ def test():  # put application's code here
             img = cv2.resize(img, (SIZE, SIZE))
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             test_images.append(img)
+            test_image_names.append(img_path.split("\\")[-1])
             test_labels.append(label)
     test_images = np.array(test_images)
     test_labels = np.array(test_labels)
@@ -95,7 +96,8 @@ def test():  # put application's code here
     cm= str(confusion_matrix(test_labels, predict_test))
     precision= str(metrics.precision_score(test_labels, predict_test, average='micro'))
     recall= str(metrics.recall_score(test_labels, predict_test, average='micro'))
-    return '{"accuracy":'+accuracy+',"precision":'+precision+',"recall":'+recall+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
+    print(test_labels)
+    return '{"accuracy":'+accuracy+',"precision":'+precision+',"recall":'+recall+',"testfilenames":'+str(test_image_names).replace("'","\"")+',"testlabels":'+str(test_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_test).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
 
 @app.route('/train',methods=['POST'])
 @cross_origin()
