@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'vlair'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_69BAF091C89044F1BFB358B9EC941433 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_19FC7D75F0B14FD1A606F9295050EC07 }}
