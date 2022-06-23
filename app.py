@@ -7,7 +7,6 @@ import cv2
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Input
 import os
-import seaborn as sns
 from tensorflow.keras.applications.vgg16 import VGG16
 import pandas as pd
 import csv
@@ -96,8 +95,9 @@ def test():  # put application's code here
     cm= str(confusion_matrix(test_labels, predict_test))
     precision= str(metrics.precision_score(test_labels, predict_test, average='micro'))
     recall= str(metrics.recall_score(test_labels, predict_test, average='micro'))
+    f1score= str(metrics.f1_score(test_labels, predict_test, average='micro'))
     print(test_labels)
-    return '{"accuracy":'+accuracy+',"precision":'+precision+',"recall":'+recall+',"testfilenames":'+str(test_image_names).replace("'","\"")+',"testlabels":'+str(test_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_test).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
+    return '{"accuracy":'+accuracy+',"precision":'+precision+',"f1score":'+f1score+',"recall":'+recall+',"testfilenames":'+str(test_image_names).replace("'","\"")+',"testlabels":'+str(test_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_test).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
 
 @app.route('/train',methods=['POST'])
 @cross_origin()
