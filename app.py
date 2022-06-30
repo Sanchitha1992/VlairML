@@ -99,6 +99,67 @@ def test():  # put application's code here
     print(test_labels)
     return '{"accuracy":'+accuracy+',"precision":'+precision+',"f1score":'+f1score+',"recall":'+recall+',"testfilenames":'+str(test_image_names).replace("'","\"")+',"testlabels":'+str(test_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_test).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
 
+@app.route('/validate',methods=['POST'])
+@cross_origin()
+def validate():  # put application's code here
+    data=(json.loads(request.data))["data"]
+    count=0;
+    if os.path.exists("Validate")==True:
+        shutil.rmtree("Validate")
+    for d in data:
+        os.makedirs("Validate/"+d["label"], exist_ok=True)
+        with open("Validate/"+d["label"]+"/"+d["name"]+".png", "wb") as fh:
+            print(bytes(d["data"].split(',')[1],'utf-8'))
+            fh.write(base64.decodebytes(bytes(d["data"].split(',')[1],'utf-8')))
+    SIZE = 256  # Resize images
+    val_images = []
+
+    val_labels = []
+    val_image_names=[]
+    for directory_path in glob.glob("Validate/*"):
+        label = directory_path.split("/")[-1]
+        print(label)
+        for img_path in glob.glob(os.path.join(directory_path, "*.png")):
+            print(img_path)
+            img = cv2.imread(img_path, cv2.IMREAD_COLOR)
+            img = cv2.resize(img, (SIZE, SIZE))
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            val_images.append(img)
+            val_image_names.append(img_path.split("\\")[-1])
+            val_labels.append(label)
+    val_images = np.array(val_images)
+    val_labels = np.array(val_labels)
+    le = preprocessing.LabelEncoder()
+    le.fit(val_labels)
+    val_labels_encoded = le.transform(val_labels)
+    x_val, y_val =  val_images, val_labels_encoded
+    x_val= x_val / 255.0
+    y_val_one_hot = to_categorical(y_val)
+
+    val_feature_extractor = VGG_model.predict(x_val)
+    val_features = val_feature_extractor.reshape(val_feature_extractor.shape[0], -1)
+
+    val_PCA = pca.transform(val_features)
+
+    predict_val = model.predict(val_PCA)
+    predict_val = np.argmax(predict_val, axis=1)
+    predict_val = le.inverse_transform(predict_val)
+
+    print("Accuracy = ", metrics.accuracy_score(val_labels, predict_val))
+    print("Confusion Matrix = ", confusion_matrix(val_labels, predict_val))
+    print("Precision = ", metrics.precision_score(val_labels, predict_val, average='micro'))
+    print("Recall = ", metrics.recall_score(val_labels, predict_val, average='micro'))
+
+    accuracy= str(metrics.accuracy_score(val_labels, predict_val))
+    cm= str(confusion_matrix(val_labels, predict_val))
+    precision= str(metrics.precision_score(val_labels, predict_val, average='micro'))
+    recall= str(metrics.recall_score(val_labels, predict_val, average='micro'))
+    f1score= str(metrics.f1_score(val_labels, predict_val, average='micro'))
+    print(val_labels)
+    return '{"accuracy":'+accuracy+',"precision":'+precision+',"f1score":'+f1score+',"recall":'+recall+',"valfilenames":'+str(val_image_names).replace("'","\"")+',"vallabels":'+str(val_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_val).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
+
+
+
 @app.route('/train',methods=['POST'])
 @cross_origin()
 def train():  # put application's code here
