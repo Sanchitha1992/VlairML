@@ -90,7 +90,7 @@ def test():  # put application's code here
     print("Confusion Matrix = ", confusion_matrix(test_labels, predict_test))
     print("Precision = ", metrics.precision_score(test_labels, predict_test, average='micro'))
     print("Recall = ", metrics.recall_score(test_labels, predict_test, average='micro'))
-
+    print("classification report",metrics.classification_report(test_labels, predict_test, digits=3))
     accuracy= str(metrics.accuracy_score(test_labels, predict_test))
     cm= str(confusion_matrix(test_labels, predict_test))
     precision= str(metrics.precision_score(test_labels, predict_test, average='micro'))
@@ -209,7 +209,7 @@ def train():  # put application's code here
     model = Sequential()
     inputs = Input(shape=(n_PCA_components,))  # Shape = n_components
     hidden = Dense(256, activation='relu')(inputs)
-    output = Dense(3, activation='softmax')(hidden)
+    output = Dense(len(np.unique(train_labels)), activation='softmax')(hidden)
     model = Model(inputs=inputs, outputs=output)
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['categorical_accuracy'])
     logs=model.fit(train_PCA, y_train_one_hot, epochs=100, verbose=2)
