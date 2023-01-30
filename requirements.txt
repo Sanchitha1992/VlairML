@@ -1,7 +1,8 @@
-numpy
-flask
-opencv-python
-tensorflow
-matplotlib
-Flask-Cors
-pandas
+pip install numpy
+pip install flask
+pip install opencv-python
+pip install tensorflow
+pip install matplotlib
+pip install Flask-Cors
+pip install pandas
+python app.py

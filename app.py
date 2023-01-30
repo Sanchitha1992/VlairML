@@ -93,9 +93,9 @@ def test():  # put application's code here
     print("classification report",metrics.classification_report(test_labels, predict_test, digits=3))
     accuracy= str(metrics.accuracy_score(test_labels, predict_test))
     cm= str(confusion_matrix(test_labels, predict_test))
-    precision= str(metrics.precision_score(test_labels, predict_test, average='micro'))
-    recall= str(metrics.recall_score(test_labels, predict_test, average='micro'))
-    f1score= str(metrics.f1_score(test_labels, predict_test, average='micro'))
+    precision= str(metrics.precision_score(test_labels, predict_test, average='macro'))
+    recall= str(metrics.recall_score(test_labels, predict_test, average='macro'))
+    f1score= str(metrics.f1_score(test_labels, predict_test, average='macro'))
     print(test_labels)
     return '{"accuracy":'+accuracy+',"precision":'+precision+',"f1score":'+f1score+',"recall":'+recall+',"testfilenames":'+str(test_image_names).replace("'","\"")+',"testlabels":'+str(test_labels).replace("'","\"").replace(" ",",")+',"predictedlabels":'+str(predict_test).replace(" ",",").replace("'","\"")+',"cm":'+cm.replace("[ ","[").replace("  ",",").replace(" ",",")+'}'
 
